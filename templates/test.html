@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>test</title>
+</head>
+<body>
+   
+   <div align="center">
+		<form action="http://localhost:5000/test/value" method="POST">
+		    <p>
+		        <input type="text" name="val">
+		        <input type="submit" name="op" value="查询">
+		        <input type="submit" name="op" value="显示全部">
+		    </p>
+		</form>
+   </div>
+   
+   <!-- jinjia2 语法 -->
+	{% if data_dict %}
+	<div align="center">
+		<div id="content">
+			<p style="color: crimson;">系统管理员：{{ data_ad.name }},	系统管理员性别：{{ data_ad['gender'] }}</p>
+			<p style="color: chartreuse;">你的查询方式为：{{ data_dict.methods }},	你输入的内容为：{{ data_dict['content'] }}</p>
+		</div>
+	</div>
+	{% endif %}
+</html>

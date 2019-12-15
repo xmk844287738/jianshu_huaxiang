@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>简书整体用户群体画像</title>
+		<link rel="stylesheet" type="text/css" href="../static/css/bootstrap-theme.min.css" />
+		<link rel="stylesheet" type="text/css" href="../static/css/bootstrap.min.css" />
+		<style type="text/css">
+			.form_input {
+				width: 20%;
+			}
+		</style>
+	</head>
+	<body>
+		<div align="center">
+			<div id="" style="margin-top: 150px;">
+				<!-- <input onblur="a()" type="text" class="form-control form_input" placeholder="请输入性别..." name="gender" id="gender" ><br>
+				<button>a</button> -->
+				<form action="http://localhost:5000/crowd/show" method="POST">
+					<input onblur="func1()" onfocus="display()" type="text" class="form-control form_input" placeholder="请输入性别..." name="gender" id="gender" ><br>
+					<div id="message_gender" style="display: none;">
+						<p style="color: #FF0700;">性别输入有问题！请重新输入！（参考信息：留空或输入man或输入woman）</p>
+					</div>
+					
+					<input onblur="func2()" onfocus="display()" type="text" class="form-control form_input" placeholder="请输入人数..." name="user_num" id="user_num"><br>
+					<div id="message_user_num" style="display: none;">
+						<p style="color: #FF0700;">人数输入有问题！请重新输入！（必须是整数）</p>
+					</div>
+					<input class="btn btn-default" type="submit" name="op"   value="查询">
+				</form>
+				
+							
+			</div>
+		</div>
+
+		<!-- <p>
+			请输入性别：<input type="text" name="gender"><br>
+			{% if gender_error_msg %}
+			<p style="color: firebrick;">{{ gender_error_msg }}</p>
+			{% endif  %}
+			请输入人数：<input type="text" name="user_num"><br>
+			{% if num_error_msg %}
+			<p style="color: firebrick;">{{ num_error_msg }}</p>
+			{% endif  %}
+			<input type="submit" name="op" value="查询">
+		</p> -->
+
+	</body>
+	<script type="text/javascript" src="../static/js/bootstrap.min.js"></script>
+	<script src="../static/js/jquery-3.4.1.min.js" type="text/javascript" charset="utf-8"></script>
+	<script type="text/javascript">
+		
+		function display(){
+			// $('#message_gender').attr('display','none')
+			$('#message_gender').hide()
+			$('#message_user_num').hide()
+		};
+		
+		
+		// 验证gender 性别
+		function func1() {
+			var gender = $('#gender').val();
+			console.log(gender);
+			$.ajax({
+				url: "/foucs_gender/"+gender,
+				success: function(data) {
+					console.log(data)
+					// console.log(data)
+					if (data == 'true'){
+						// console.log('yes')
+						// console.log(data)
+					}else{
+						// console.log('no')
+						// var message = '<p style="color: #FF0700;">性别输入有问题！请重新输入！（参考信息：留空或输入man或输入woman）</p>'
+						// alert(message)
+						$('#message_gender').show()
+						// $('#message_gender').append(message)
+					}
+					
+				}
+			});
+		};
+		
+		// 验证user_num 是否为数字
+		function func2() {
+			var user_num = $('#user_num').val();
+			console.log(user_num);
+			if (user_num == ''){
+				// var message = '<p style="color: #FF0700;">人数输入有问题！请重新输入！（必须是整数）</p>'
+				// alert(message)
+				// $('#message_user_num').append(message)
+				$('#message_user_num').show()
+			}else{
+				$.ajax({
+					url: "http://localhost:5000/foucs_user_num/"+user_num,
+					success: function(data) {
+						// console.log(data)
+						if (data == 'true'){
+							console.log(data)
+						}else{
+							// var message = '人数输入有问题！请重新输入！（必须是整数）'
+							// alert(message)
+							$('#message_user_num').show()
+							// $('#message_user_num').append(message)
+						}
+						
+					}
+				})
+			}
+		};
+		
+	</script>
+</html>

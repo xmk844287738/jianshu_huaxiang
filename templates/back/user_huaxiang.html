@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>简书个体用户画像</title>
+		<link rel="stylesheet" type="text/css" href="../static/css/bootstrap-theme.min.css"/>
+		<link rel="stylesheet" type="text/css" href="../static/css/bootstrap.min.css"/>
+		<link rel="stylesheet" type="text/css" href="../static/css/loading.css"/>
+	</head>
+	<body>
+		<div id="" align="center" >
+			<div id="" style="margin-top: 150px;">
+				<form action="http://localhost:5000/user/show" method="POST">
+					<div class="input-group" style="width: 40%;">
+					  <input type="text" class="form-control" placeholder="请输入用户的主页..." name="homepage" id="homepage" onfocus="message_display()" onblur="func1()">
+					  <span class="input-group-btn">
+					    <!--<button class="btn btn-default" type="button" name="op">查询</button>-->
+						  <input type="submit" class="btn btn-default" name="op" value="查询" onclick="loading()">
+					  </span>
+					</div>
+					<!-- 消息提示 -->
+					<p style="color: firebrick; font-size: 30px; " id="tips"></p>
+					<!-- {% if homepage_error_msg %}
+					
+					{% endif  %} -->
+				</form>
+			</div>
+			<div id="loading" style="display: none;">
+				<div class="loader">
+					<div class="text">用户信息获取中 ...</div>
+					<div class="horizontal">
+					  <div class="circlesup">
+							<div class="circle"></div>
+							<div class="circle"></div>
+							<div class="circle"></div>
+							<div class="circle"></div>
+							<div class="circle"></div>
+					  </div>
+					  <div class="circlesdwn">
+							<div class="circle"></div>
+							<div class="circle"></div>
+							<div class="circle"></div>
+							<div class="circle"></div>
+							<div class="circle"></div>
+					  </div>
+					</div>
+					<div class="vertical">
+					  <div class="circlesup">
+							<div class="circle"></div>
+							<div class="circle"></div>
+							<div class="circle"></div>
+							<div class="circle"></div>
+							<div class="circle"></div>
+					  </div>
+					  <div class="circlesdwn">
+							<div class="circle"></div>
+							<div class="circle"></div>
+							<div class="circle"></div>
+							<div class="circle"></div>
+							<div class="circle"></div>
+					  </div>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+	</body>
+	<script type="text/javascript" src="../static/js/bootstrap.min.js"></script>
+	<script src="../static/js/jquery-3.4.1.min.js" type="text/javascript" charset="utf-8"></script>
+	<script type="text/javascript">
+		function loading(){
+			$('#loading').show();
+		};
+		
+		function func1(){
+			var homepage = $('#homepage').val();
+			// console.log(homepage);
+			var homepage_dict = {
+				'homepage':homepage,
+			};
+			var homepage_v2 = JSON.stringify(homepage_dict);
+			$.ajax({
+				url: "/user_homepage",
+				type: "POST",
+				data:homepage_v2,
+				dataType:'json',
+				success: function(data) {
+					// console.log(data.key_words);
+					
+					if (data.key_words == 'yes'){
+						$('#tips_message').remove();
+						console.log(data.key_words)
+					}else{
+						console.log(data.key_words);
+						// var message = '用户主页有问题输入有问题！请重新输入！'
+						// alert(message)
+						$('#tips').append('<b id="tips_message">输入的用户主页有问题！请重新输入！</b>');
+					}
+					
+				}
+			})
+		};
+		// 聚焦时 错误隐藏
+		function message_display(){
+			$('#tips_message').remove()
+		}
+		
+	</script>
+</html>

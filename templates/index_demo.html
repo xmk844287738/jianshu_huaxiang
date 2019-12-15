@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>首页</title>
+</head>
+<body>
+    Hello Flask!
+	<div id="main">
+		<input type="text" name="input_num" id="input_num" value="" />
+		<input type="submit" id="submit1" name="submit" />
+	</div>
+</body>
+</html>
+<script src="../static/js/jquery-3.4.1.min.js"></script>
+<script type="text/javascript">
+		
+		var submit_input = document.getElementById('submit1');
+		input_value = document.getElementById('input_num');
+		
+		var student = {
+		      email:'123456',
+		      phone: '66663',
+		    };
+			
+		//可以将json对象转换成字符串  
+		var senddata = JSON.stringify(student);
+		console.log(senddata);
+		
+		submit_input.onclick = (function(){
+			console.log(input_value.value);
+			$.ajax({
+			  url: "/recv_data",
+			  type: "POST",
+			  data: senddata,
+			  dataType: "json",
+			  success: function (data) {
+			    console.log(data)
+			  }
+			});
+			console.log(senddata);
+		});
+		
+		// $.ajax({
+		//   url: "/recv_data",
+		//   type: "POST",
+		//   data: senddata,
+		//   dataType: "json",
+		//   success: function (data) {
+		//     console.log(data)
+		//   }
+		// });
+	
+</script>

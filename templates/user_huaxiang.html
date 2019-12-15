@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>简书个体用户画像</title>
+		<link rel="stylesheet" type="text/css" href="../static/css/bootstrap-theme.min.css"/>
+		<link rel="stylesheet" type="text/css" href="../static/css/bootstrap.min.css"/>
+		<link rel="stylesheet" type="text/css" href="../static/css/loading.css"/>
+		<link rel="stylesheet" type="text/css" href="../static/css/process.css"/>
+	</head>
+	<body>
+		<div id="" align="center" >
+			<div id="" style="margin-top: 150px;">
+				<form id="form_submit" action="http://localhost:5000/user/show" method="POST">
+					<div class="input-group" style="width: 40%;">
+					  <input type="text" class="form-control" placeholder="请输入用户的主页..." name="homepage" id="homepage" onfocus="message_display()" onblur="check_user_homepage()">
+					  <span class="input-group-btn">
+					    <!--<button class="btn btn-default" type="button" name="op">查询</button>-->
+						  <input type="button" class="btn btn-default" name="op" value="查询" onclick="loading()">
+					  </span>
+					</div>
+				</form>
+				
+				
+				<!-- 消息提示 -->
+				<p style="color: firebrick; font-size: 30px; " id="tips"></p>
+			
+			</div>
+			<div id="">
+				<div class="ok"></div>
+				<div class="tbox">
+					<div class="tiao"></div>
+				</div>
+				<!-- <input class="btn btn-default" type="submit" name="op"  value="查询"> -->
+			</div>
+			
+			<div id="loading" style="display: none;">
+				<div class="loader">
+					<div class="text">用户信息获取中 ...</div>
+					<div class="horizontal">
+					  <div class="circlesup">
+							<div class="circle"></div>
+							<div class="circle"></div>
+							<div class="circle"></div>
+							<div class="circle"></div>
+							<div class="circle"></div>
+					  </div>
+					  <div class="circlesdwn">
+							<div class="circle"></div>
+							<div class="circle"></div>
+							<div class="circle"></div>
+							<div class="circle"></div>
+							<div class="circle"></div>
+					  </div>
+					</div>
+					<div class="vertical">
+					  <div class="circlesup">
+							<div class="circle"></div>
+							<div class="circle"></div>
+							<div class="circle"></div>
+							<div class="circle"></div>
+							<div class="circle"></div>
+					  </div>
+					  <div class="circlesdwn">
+							<div class="circle"></div>
+							<div class="circle"></div>
+							<div class="circle"></div>
+							<div class="circle"></div>
+							<div class="circle"></div>
+					  </div>
+					</div>
+				</div>
+			</div>
+			
+		</div>
+		
+		
+		
+	</body>
+	<script type="text/javascript" src="../static/js/bootstrap.min.js"></script>
+	<script src="../static/js/jquery-3.4.1.min.js" type="text/javascript" charset="utf-8"></script>
+	<script type="text/javascript">	
+		// 验证 user_homepage 是否符合规则
+		function check_user_homepage(){
+			var homepage = $('#homepage').val();
+			// console.log(homepage);
+			var homepage_dict = {
+				'homepage':homepage,
+			};
+			var homepage_json = JSON.stringify(homepage_dict);
+			$.ajax({
+				url: "/user_homepage",
+				type: "POST",	
+				data:homepage_json,
+				dataType:'json',
+				success: function(data) {
+					// console.log(data.key_words);
+					
+					if (data.key_words == 'yes'){
+						$('#tips_message').remove();
+						console.log(data.key_words)
+					}else{
+						console.log(data.key_words);
+						// var message = '用户主页有问题输入有问题！请重新输入！'
+						// alert(message)
+						$('#tips').append('<b id="tips_message">输入的用户主页有问题！请重新输入！</b>');
+					}
+					
+				}
+			})
+		};
+		// 聚焦时 错误隐藏
+		function message_display(){
+			$('#tips_message').remove()
+		}
+		
+		// 加载用户文章数量
+		var user_articleNum= 0
+		function loading(){
+			
+			$('#loading').show();
+			
+			var homepage = $('#homepage').val();
+			var homepage_dict = {
+				'homepage':homepage,
+			};
+			var homepage_json = JSON.stringify(homepage_dict);
+			$.ajax({
+				url:'/user_articleNum',
+				type:'POST',
+				data: homepage_json,
+				//后台返回数据的格式
+				dataType: 'json',
+				success: function(data){
+					// 后台返回的数据 如果数据库中没有此用户的信息
+					if (data.articleNum != 'yes'){
+						console.log('用户总文章数：' + data.articleNum);
+						user_articleNum = data.articleNum
+				// 数据库里没有此用户的文章数据信息；根据 user_homepage 调取先前的爬取文件 获取用户的文章并传入数据库
+						$.ajax({
+							url: '/article_Spider',
+							// 异步请求,避免锁死浏览器, 执行后续函数
+							async: true,
+							type: 'POST',
+							data: homepage_json,
+							timeout: 600000,
+							dataType: 'json',
+							success: function(data){
+								// 用户文章获取、分词完毕ok
+								console.log(data.key_words);
+								// 提交表单 把用户转向至 '展示单个用户的爱好' 页面
+								$('#form_submit').submit();
+							}
+						});
+						// 同时执行第二个 ajax 请求函数
+						// 每间隔1秒钟查询 user_homepage 入库的文章数
+						stop = setInterval("run()",2000);
+					}else{
+						// 提交表单 把用户转向至 '展示单个用户的爱好' 页面
+						$('#form_submit').submit();
+						// $.ajax({
+						// 	url: '/user/show',
+						// 	async: false,
+						// 	type: 'POST',
+						// 	data: homepage_json,
+						// 	dataType: 'json',
+						// 	success: function(data){
+						// 		console.log(data.key_words);
+						// 	}
+						// })
+					}
+				}
+			})
+		};
+		
+		
+		var i = 0;
+		// 进度展示
+		var process = 0;
+		var stop;
+		
+		/*add——创建tbx下的div加文字和变宽度的方法*/
+		
+		function add(process) {
+			var tbox = $(".tbox");
+			var tiao = $(".tiao");
+			tiao.css("width", process + "%").html(process + "%");
+		
+		}
+
+		
+		function run(){
+			var homepage = $('#homepage').val();
+			var homepage_dict = {
+				'homepage':homepage,
+			};
+			var homepage_json = JSON.stringify(homepage_dict);
+			$.ajax({
+				url:'/everySec_queryDB',
+				// 异步请求
+				async: true,
+				type: "POST",
+				data:homepage_json,
+				dataType:'json',
+				success: function(data){
+					console.log('此时用户文章数：' + data.now_artNum)
+					i = data.now_artNum;
+				}
+			});
+			
+			/*创建方法（i++循环起来）*/
+			if (i >= user_articleNum) {
+				process = Math.round((i / user_articleNum) *100);
+				add(process);
+				$(".ok").html("加载完成").fadeIn("slow");
+				clearInterval(stop);
+						
+			};
+						
+			if (i < user_articleNum) {
+				process = Math.round((i / user_articleNum) *100);
+				console.log('当前进度：' + process + '%');
+				add(process);
+			}
+		}
+		
+	</script>
+</html>

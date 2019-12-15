@@ -1,0 +1,34 @@
+.box {
+	width: 397px;
+	height: 300px;
+	margin: 30px auto;
+}
+
+.ok {
+	width: 200px;
+	height: 100px;
+	margin: 0 auto;
+	text-align: center;
+	background: #999;
+	line-height: 100px;
+	color: #FFF;
+	display: none;
+}
+
+.tbox {
+	width: 397px;
+	height: 49px;
+	background: url(../img/bak.png) no-repeat;
+	margin-top: 200px;
+}
+
+.tbox div {
+	width: 0px;
+	height: 49px;
+	background: url(../img/pro.png) no-repeat;
+	text-align: center;
+
+	font-family: Tahoma;
+	font-size: 18px;
+	line-height: 48px;
+}

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<link rel="stylesheet" type="text/css" href="../static/css/bootstrap.min.css"/>
+		<link rel="stylesheet" type="text/css" href="../static/css/bootstrap-theme.min.css"/>
+		<title>Input输入框</title>
+	</head>
+	<body>
+		
+		<!-- <div align="center">
+			<form action="http://localhost:5000/huaxiang/show" method="POST">
+				<p>
+					请输入人数：<input type="text" name="user_num"><br>
+					{% if num_error_msg %}
+					<p style="color: firebrick;">{{ num_error_msg }}</p>
+					{% endif  %}
+					<input type="submit" name="op" value="查询">
+				</p>
+			</form>
+		</div> -->
+		
+		<div id="" align="center" >
+			<div id="" style="margin-top: 150px;">
+				<form action="http://localhost:5000/huaxiang/show" method="POST">
+					<div class="input-group" style="width: 40%;">
+					  <input type="text" class="form-control" placeholder="请输入用户的人数..." name="user_num">
+					  <span class="input-group-btn">
+					    <!--<button class="btn btn-default" type="button" name="op">查询</button>-->
+						  <input type="submit" class="btn btn-default" name="op" value="查询">
+					  </span>
+					</div>
+					{% if num_error_msg %}
+					<p style="color: firebrick;">{{ num_error_msg }}</p>
+					{% endif  %}
+				</form>
+			</div>
+		</div>
+		
+		
+	</body>
+	<script type="text/javascript" src="../static/js/bootstrap.min.js"></script>
+</html>
