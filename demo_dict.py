@@ -34,20 +34,41 @@
 # import multiprocessing
 # print(multiprocessing.cpu_count())
 
-import pymongo
-client = pymongo.MongoClient("mongodb://127.0.0.1:27017/")
-# jianshu_huaxiang 数据库名
-db = client['jianshu_huaxiang']
-# site 集合表名 存放用户文章
-collection_UA = db['site']
+# import pymongo
+# client = pymongo.MongoClient("mongodb://127.0.0.1:27017/")
+# # jianshu_huaxiang 数据库名
+# db = client['jianshu_huaxiang']
+# # site 集合表名 存放用户文章
+# collection_UA = db['site']
+#
+# res = collection_UA.aggregate([{"$match": {'user_homepage': 'https://www.jianshu.com/u/3085ce78c719'}}, {"$project": {"cnt": {"$size":"$user_article"}}}])
+#
+# # count => cnt
+# # num = res[0]['cnt']
+# # print(res[0]['cnt'])
+# res_list = list(res)
+# # print(res_list[0]['cnt'])
+#
+# for item, key in res_list[0].items():
+#     print(f"'{item}':{key}")
 
-res = collection_UA.aggregate([{"$match": {'user_homepage': 'https://www.jianshu.com/u/3085ce78c719'}}, {"$project": {"cnt": {"$size":"$user_article"}}}])
+import base64
+import os
 
-# count => cnt
-# num = res[0]['cnt']
-# print(res[0]['cnt'])
-res_list = list(res)
-# print(res_list[0]['cnt'])
+# str_encode = base64.b64encode('Hello World!'.encode('utf-8'))
+# print(f'str_encode:{str(str_encode, encoding="utf-8")}')
+#
+# str_decode = base64.b64decode(str_encode)
+# print(f'str_decode:{str(str_decode, encoding="utf-8")}')
 
-for item, key in res_list[0].items():
-    print(f"'{item}':{key}")
+curPath = os.path.abspath(os.path.dirname(__file__))
+# print(curPath)
+pic_name = 'normal.jpg'
+pic_path = os.path.abspath(curPath + '\\jianshu_huaxiang\\{pic_name}'.format(pic_name=pic_name))
+
+with open(pic_path, 'rb') as f:
+    base64_data = base64.b64encode(f.read())
+    # s = base64_data.decode()
+    print(f'data:image/jpeg;base64,{base64_data.decode()}')
+
+f.close()

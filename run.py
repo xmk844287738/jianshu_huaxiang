@@ -2,6 +2,7 @@ from flask import Flask, render_template, request
 import json
 import re
 import os
+import base64
 import pymongo
 from append_userArticle.CommWords_weight import user_commWords_weight
 from append_userArticle.jianshu_index import JianshuSpider
@@ -65,9 +66,26 @@ def js_post(addr):
       return addr +" - ip"
 
 
-@app.route("/", methods=['GET', 'POST'])
-def foucs():
-      return render_template('crowd_huaxiang.html')
+@app.route("/test", methods=['GET', 'POST'])
+def pic_demo():
+      return render_template('test1.html')
+
+@app.route("/test/show", methods=['GET', 'POST'])
+def pic_send():
+      data_dict = {}
+      pic_name = 'normal.jpg'
+      pic_path = os.path.abspath(curPath + '\\jianshu_huaxiang\\{pic_name}'.format(pic_name=pic_name))
+
+      with open(pic_path, 'rb') as f:
+          base64_data = base64.b64encode(f.read())
+          s = base64_data.decode()
+          # print(f'data:image/jpeg;base64,{base64_data.decode()}')
+          data_dict['pic'] = 'data:image/jpeg;base64,' + s
+
+      f.close()
+
+      return json.dumps(data_dict)
+
 
 
 # 文本框焦点事件
@@ -280,12 +298,12 @@ def user_hobby_show():
     #                 max_hobby_val=max_hobby_val, userInfo=userInfo)
     # return json.dumps(message)
 
-    return render_template('user_huaxiang_show.html', hobby_label=hobby_label, hobby_val=hobby_val, max_hobby_val=max_hobby_val, userInfo=userInfo), json.dumps(message)
+    return render_template('user_huaxiang_show.html', hobby_label=hobby_label, hobby_val=hobby_val, max_hobby_val=max_hobby_val, userInfo=userInfo, userCommonWords=userCommonWords), json.dumps(message)
 
 
 
 
-# 简书群体（女性、男性、未标注性别的 三类人群）的爱好排行榜
+# 简书群体用户（女性、男性、未标注性别的 三类人群）的爱好排行榜
 @app.route('/crowd', methods=['GET', 'POST'])
 def Tophobby():
     return render_template('crowd_huaxiang.html')
@@ -296,6 +314,8 @@ def Tophobby_show():
 
         gender = request.form['gender']
         user_num = request.form['user_num']
+        if user_num == '':
+            user_num = 100
 
         # if gender !='' and gender !='man' and gender !='woman':
         #     # 方便提示用户多个错误
@@ -314,7 +334,16 @@ def Tophobby_show():
         data_info['gender'] = gender
         data_info['user_num'] = user_num
 
+    # 简书群体用户的爱好
     Top_hobby = get_TopHobby(gender=gender, num=int(user_num))
+    user_wordcloud = user_wordCloud()
+    # 简书群体用户的常用词
+    cordUserCW_top100 = user_wordcloud.get_cordUser_CW(gender=gender, user_num=int(user_num))
+    # 简书群体用户的视频、书籍
+    top_video100, top_books100 = user_wordcloud.get_topVideo_Books(gender=gender, num=int(user_num))
+    # ** ，解包思想 合并三个字典
+    cordUser_words = {**cordUserCW_top100, **top_video100, **top_books100}
+    # print(cordUser_words)
 
     # 存放爱好的 列表字典
     hobby_list = []
@@ -329,10 +358,48 @@ def Tophobby_show():
         hobby_list.append(hobby_dict)
         hobby_label.append(item[0])
 
-    return render_template('crowd_huaxiang_show.html', hobby_list=hobby_list, hobby_label=hobby_label, data_info=data_info)
+    pic_dict = {}
+    if gender == 'woman':
+        pic_name = 'woman.jpg'
+    elif gender == 'man':
+        pic_name = 'man.jpg'
+    else:
+        pic_name = 'normal.jpg'
+
+    pic_path = os.path.abspath(curPath + '\\jianshu_huaxiang\\{pic_name}'.format(pic_name=pic_name))
+
+    with open(pic_path, 'rb') as f:
+        base64_data = base64.b64encode(f.read())
+        s = base64_data.decode()
+        # print(f'data:image/jpeg;base64,{base64_data.decode()}')
+        pic_dict['pic'] = 'data:image/jpeg;base64,' + s
+
+    f.close()
+
+
+    return render_template('crowd_huaxiang_show.html', hobby_list=hobby_list, hobby_label=hobby_label, data_info=data_info, cordUser_words=cordUser_words, pic_dict=pic_dict)
 
 
 # 数据库里所有的简书用户画像
+@app.route('/jianshu', methods=['GET', 'POST'])
+def jianshu():
+    return  render_template('jianshu.html')
+
+@app.route('/jianshu/show', methods=['GET', 'POST'])
+def jianshu_show():
+    userNum_json = request.get_data()
+    userNum_dict = json.loads(userNum_json)
+    user_num = int(userNum_dict['user_num'])
+
+    user_wordcloud = user_wordCloud()
+    # 用户常用词
+    userCommWords_td = user_wordcloud.jianshu_huaxiang(user_num=user_num)
+    print(userCommWords_td)
+    return json.dumps(userCommWords_td)
+
+
+
+@app.route("/", methods=['GET', 'POST'])
 @app.route('/huaxiang', methods=['GET', 'POST'])
 def get_userhuaxiang():
     return render_template('huaxiang.html')
@@ -362,7 +429,7 @@ def userhuaxiang_show():
         # 存放爱好的 名字
         hobby_label = []
         # 取前15个出现次数最多的 爱好及次数
-        for item in hobby_list[:20]:
+        for item in hobby_list[:30]:
             hobby_dict = {}
             hobby_dict['value'] = item[1]
             hobby_dict['name'] = item[0]
@@ -370,14 +437,14 @@ def userhuaxiang_show():
             hobby_label.append(item[0])
 
         # 取女性群体前15个出现次数最多的 爱好及次数
-        for item in W_hobby_list[:20]:
+        for item in W_hobby_list[:30]:
             hobby_dict = {}
             hobby_dict['value'] = item[1]
             hobby_dict['name'] = item[0]
             woman_hobby_list.append(hobby_dict)
 
         # 取男性群体前15个出现次数最多的 爱好及次数
-        for item in M_hobby_list[:20]:
+        for item in M_hobby_list[:30]:
             hobby_dict = {}
             hobby_dict['value'] = item[1]
             hobby_dict['name'] = item[0]
