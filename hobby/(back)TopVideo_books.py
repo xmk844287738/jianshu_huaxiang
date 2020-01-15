@@ -26,6 +26,13 @@ def get_topVideo_Books(user_homepage=None, gender='none', num=600, skip=0):
     f.close()
 
     video_list = video_str.split('\n')
+    # 初始化各视频名称的次数为0
+    video_index = [0 for i in range(len(video_list))]
+
+    # 以视频名称为 key 关键字； 值为 各视频出现的次数
+    video_dict = {}
+    for name, count in zip(video_list, video_index):
+        video_dict[name] = count
 
     # 按照用户主页查询（user_homepage）
     user_homepage = user_homepage
@@ -41,9 +48,6 @@ def get_topVideo_Books(user_homepage=None, gender='none', num=600, skip=0):
     else:
         res = mycollection.find().limit(num).skip(skip)
 
-    # 存放用户的视频名称
-    video_Names = []
-
     # 存放用户的书籍名称
     bookNames = []
     # 遍历得到用户对象
@@ -57,12 +61,13 @@ def get_topVideo_Books(user_homepage=None, gender='none', num=600, skip=0):
         if result:
             for worksName in result:
                 if worksName in video_list:
-                    video_Names.append(worksName)
+                    video_dict[worksName] += 1
 
                 else:
                     bookNames.append(worksName)
 
-    video_top = Counter(video_Names).most_common(100)
+    video_top = sorted(video_dict.items(), key=lambda video_dict: video_dict[1], reverse=True)
+
     # 把 video_top 列表元组转化为 字典对象
     video_top100 = {}
     for item in video_top[:100]:

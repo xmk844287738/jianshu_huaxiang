@@ -11,13 +11,11 @@ projectPath = curPath[:curPath.find("jianshu_flask\\") + len("jianshu_flask\\")]
 client = pymongo.MongoClient('mongodb://127.0.0.1:27017/')
 db = client['jianshu_huaxiang']
 
-# Top100 hobby 集合表
-collection_TH = db['commonWords_v3']
 # user hobby 集合表
 collection_UH_v5 = db['commonWords_v5']
 
 
-# 简书用户的爱好排行榜
+# 简书群体用户的爱好排行榜
 def get_TopHobby(gender, num, skip=0):
     """
     gender 为 None 进行 findall 模式查找  (None 不等于字符串 'none') 返回值：列表套元组
@@ -46,14 +44,15 @@ def get_TopHobby(gender, num, skip=0):
     # 读取mongoDb数据库里 前num个用户
     if gender:
         # 规定性别查找
-        res = collection_TH.find({'gender': gender}).limit(num).skip(skip)
+        res = collection_UH_v5.find({'gender': gender}).limit(num).skip(skip)
 
     else:
-        res = collection_TH.find().limit(num).skip(skip)
+        res = collection_UH_v5.find().limit(num).skip(skip)
 
     for user in res:
-        user_hobby = user['user_commonWords'].split(',')
-        for hobby in user_hobby:
+        user_hobby_lst = list(user['user_commonWords_dict'])
+        # user_hobby_lst = user['user_commonWords_dict']
+        for hobby in user_hobby_lst:
             if hobby in hobby_list:
                 hobby_dict[hobby] += 1
 
@@ -218,23 +217,29 @@ def group_huaxiang(num, skip=0):
 
 
     # 读取mongoDb数据库里 前num个用户
-    res = collection_TH.find().limit(num).skip(skip)
+    res = collection_UH_v5.find().limit(num).skip(skip)
 
     for user in res:
         # 个数为num所有用户（性别为男、女、none）
-        user_hobby = user['user_commonWords'].split(',')
+        user_hobby_dict = user['user_commonWords_dict']
+        user_hobby = list(user_hobby_dict.keys())
+
         for hobby in user_hobby:
             if hobby in hobby_list:
                 hobby_dict[hobby] += 1
 
         if user['gender'] == 'woman': #用户为女性
-            user_hobby = user['user_commonWords'].split(',')
+            user_hobby_dict = user['user_commonWords_dict']
+            user_hobby = list(user_hobby_dict.keys())
+
             for hobby in user_hobby:
                 if hobby in hobby_list:
                     woman_hobby_dict[hobby] += 1
 
         if user['gender'] == 'man': #用户为男性
-            user_hobby = user['user_commonWords'].split(',')
+            user_hobby_dict = user['user_commonWords_dict']
+            user_hobby = list(user_hobby_dict.keys())
+
             for hobby in user_hobby:
                 if hobby in hobby_list:
                     man_hobby_dict[hobby] += 1
