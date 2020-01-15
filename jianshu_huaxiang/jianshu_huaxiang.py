@@ -34,7 +34,7 @@ class user_wordCloud:
         # 用户主页
         self.user_homepage = None
 
-    # 简书用户常用词
+    # 简书单个用户常用词
     # @classmethod
     def get_oneUser_commonWords(self, user_homepage):
         """
@@ -71,7 +71,7 @@ class user_wordCloud:
     # 在所选的用户中，出现次数最多的前100个视频名字、出现次数最多的前100个书籍名字
     def get_topVideo_Books(self, user_homepage=None, gender='none', num=600, skip=0):
         """
-        gender 为 None 进行 findall 模式查找  (None 不等于字符串 'none') 返回值：video_top100 字典对象 前100名视频的名字; books_top100 字典对象 前100名书籍的名字
+        gender 为 None 进行 findall 模式查找  (None 不等于字符串 'none') 返回值：video_top100 字典对象 前100个视频的名字; books_top100 字典对象 前100本书籍的名字
         :param gender: 性别
         :param num: 数据库里前 num 个记录
         :param skip: 是否启用跳过前num过用户
@@ -87,13 +87,6 @@ class user_wordCloud:
         f.close()
 
         video_list = video_str.split('\n')
-        # 初始化各视频名称的次数为0
-        video_index = [0 for i in range(len(video_list))]
-
-        # 以视频名称为 key 关键字； 值为 各视频出现的次数
-        video_dict = {}
-        for name, count in zip(video_list, video_index):
-            video_dict[name] = count
 
         # 按照用户主页查询（user_homepage）
         self.user_homepage = user_homepage
@@ -111,8 +104,11 @@ class user_wordCloud:
         else:
             res = self.collection_UA.find().limit(num).skip(skip)
 
-        # 存放用户的书籍名称
+        # 存放群体用户的书籍名称
         bookNames = []
+        # 存放群体用户的视频名称
+        videoNames = []
+
         # 遍历得到用户对象
         for user in res:
             user_every_article = user['user_allarticle']
@@ -124,16 +120,16 @@ class user_wordCloud:
             if result:
                 for worksName in result:
                     if worksName in video_list:
-                        video_dict[worksName] += 1
+                        videoNames.append(worksName)
 
                     else:
                         bookNames.append(worksName)
 
-        video_top = sorted(video_dict.items(), key=lambda video_dict: video_dict[1], reverse=True)
+        video_top = Counter(videoNames).most_common(100)
 
         # 把 video_top 列表元组转化为 字典对象
         video_top100 = {}
-        for item in video_top[:100]:
+        for item in video_top:
             video_top100[item[0]] = item[1]
 
         # # 600名用户中，出现次数最多的前100个视频名字
@@ -145,17 +141,48 @@ class user_wordCloud:
         books_top = Counter(bookNames).most_common(100)
         # 把 books_top 列表元组转化为 字典对象
         books_top100 = {}
-        for item in books_top[:100]:
+        for item in books_top:
             books_top100[item[0]] = item[1]
 
         return video_top100, books_top100
+
+    # 简书群体用户的常用词
+    def get_cordUser_CW(self, gender, user_num):
+        """
+        简书群体用户的常用词 返回 cordUserCW_top_dict  字典对象
+        :param user_num:
+        :param gender:
+        :return: cordUserCW_top_dict
+        """
+        if gender:
+            # 规定性别查找
+            res = self.collection_CW.find({'gender': gender}).limit(user_num)
+
+        else:
+            res = self.collection_CW.find().limit(user_num)
+
+        cordUser_CW_list = []
+        for user in res:
+            user_CW_list = list(user['user_commonWords_dict'])
+            # user_CW_list = list(map(lambda x: x[0], user_CW_dict))
+            for CW in user_CW_list:
+                cordUser_CW_list.append(CW)
+
+        cordUserCW_top = Counter(cordUser_CW_list).most_common(100)
+        cordUserCW_top_dict = {}
+
+        for item in  cordUserCW_top:
+            cordUserCW_top_dict[item[0]] = item[1]
+        return cordUserCW_top_dict
+
+
 
 
     # 根据用户常用词、用户喜爱书籍 Top 100 两份数据生成词云图
     def user_wordcloud(self, words_dict, filname, tofile, max_font_size, min_font_size):
         """
         根据用户常用词、用户喜爱书籍 Top 100 两份数据生成词云图
-        :param words_dict:
+        :param words_dict: 用户常用词 + 用户喜爱书籍 => 字典对象
         :param filname: 要依据那副图片进行词云设计
         :param tofile: 生成词云的图片名字
         :param max_font_size: 显示的最大的字体大小
@@ -189,22 +216,49 @@ class user_wordCloud:
         plt.axis('off')
         plt.show()
 
+    def jianshu_huaxiang(self, user_num=600):
+        """
+        输入用户个数，得出整体用户的常用词, 返回 userCommWords_td 字典对象
+        :param user_num:
+        :return:
+        """
+        res = self.collection_CW.find().limit(user_num)
+
+        commonWords = []
+        # 遍历res返回用户对象
+        for user in res:
+            user_commWords = list(user['user_commonWords_dict'].keys())
+            for words in user_commWords[:50]:
+                commonWords.append(words)
+
+        userCommWords_top100 = Counter(commonWords).most_common(100)
+
+        # 把 userCommWords_top100 列表元组转化为 字典对象
+        userCommWords_td = {}
+        for item in userCommWords_top100:
+            userCommWords_td[item[0]] = item[1]
+
+        # print(userCommWords_td)
+
+        return userCommWords_td
+
 
 if __name__ == '__main__':
     user_homepage = 'https://www.jianshu.com/u/01e71a6d7bb0'
     user_wordCloud = user_wordCloud()
-    userCommonWords = user_wordCloud.get_oneUser_commonWords(user_homepage)
-        # print(userCommonWords)
+    # userCommonWords = user_wordCloud.get_oneUser_commonWords(user_homepage)
+    #     # print(userCommonWords)
+    #
+    # top_video100, top_books100 = user_wordCloud.get_topVideo_Books(user_homepage)
+    # # print(top_books100)
+    # # print(top_video100)
+    # # # 简书用户喜爱书籍 top_books100
+    # # # ** ，解包思想 合并两个字典
+    # CommonW_TopBooks = {**userCommonWords, **top_books100}
+    # # print(CommonW_TopBooks)
+    # user_wordCloud.user_wordcloud(CommonW_TopBooks, 'woman.jpg', 'test.jpg', 40, 3)
 
-    top_video100, top_books100 = user_wordCloud.get_topVideo_Books(user_homepage)
-    # print(top_books100)
-    # print(top_video100)
-    # # 简书用户喜爱书籍 top_books100
-    # # ** ，解包思想 合并两个字典
-    CommonW_TopBooks = {**userCommonWords, **top_books100}
-    # print(CommonW_TopBooks)
-    user_wordCloud.user_wordcloud(CommonW_TopBooks, 'woman.jpg', 'test.jpg', 40, 3)
-
+    user_wordCloud.jianshu_huaxiang(user_num=2000)
 
 
 # if __name__ == '__main__':
