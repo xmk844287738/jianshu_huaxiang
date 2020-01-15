@@ -26,6 +26,7 @@
 				<p style="color: firebrick; font-size: 30px; " id="tips"></p>
 			
 			</div>
+			<!-- 进度条展示 -->
 			<div id="process" style="display: none;">
 				<div class="ok"></div>
 				<div class="tbox">
@@ -80,10 +81,11 @@
 	<script type="text/javascript" src="../static/js/bootstrap.min.js"></script>
 	<script src="../static/js/jquery-3.4.1.min.js" type="text/javascript" charset="utf-8"></script>
 	<script type="text/javascript">	
+						
 		// 验证 user_homepage 是否符合规则
 		function check_user_homepage(){
+			// 获取输入框 用户主页的值
 			var homepage = $('#homepage').val();
-			// console.log(homepage);
 			var homepage_dict = {
 				'homepage':homepage,
 			};
@@ -98,7 +100,7 @@
 					
 					if (data.key_words == 'yes'){
 						$('#tips_message').remove();
-						console.log(data.key_words)
+						// console.log(data.key_words)
 					}else{
 						console.log(data.key_words);
 						// var message = '用户主页有问题输入有问题！请重新输入！'
@@ -116,17 +118,23 @@
 		
 		// 加载用户文章数量
 		var user_articleNum= 0
-		function loading(){
+		function loading(){			
 			
-			$('#loading').show();
-			
+			// 获取输入框 用户主页的值
 			var homepage = $('#homepage').val();
+			// homepage 如果为空 则指定默认的用户主页
+			if (homepage == ''){
+				homepage = 'https://www.jianshu.com/u/3085ce78c719';
+				$('#homepage').val(homepage);
+			}
+								
 			var homepage_dict = {
 				'homepage':homepage,
-			};
+			};			
 			var homepage_json = JSON.stringify(homepage_dict);
 			$.ajax({
 				url:'/user_articleNum',
+				async: true,
 				type:'POST',
 				data: homepage_json,
 				//后台返回数据的格式
@@ -134,7 +142,8 @@
 				success: function(data){
 					// 后台返回的数据 如果数据库中没有此用户的信息
 					if (data.articleNum != 'yes'){
-						$('#process').show()
+						$('#loading').show();
+						$('#process').show();
 						console.log('用户总文章数：' + data.articleNum);
 						user_articleNum = data.articleNum
 				// 数据库里没有此用户的文章数据信息；根据 user_homepage 调取先前的爬取文件 获取用户的文章并传入数据库
@@ -159,6 +168,7 @@
 					}else{
 						
 						// 提交表单 把用户转向至 '展示单个用户的爱好' 页面
+						$('#loading').show();
 						$('#form_submit').submit();
 						// $.ajax({
 						// 	url: '/user/show',
