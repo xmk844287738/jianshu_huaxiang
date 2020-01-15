@@ -26,7 +26,7 @@
 				<p style="color: firebrick; font-size: 30px; " id="tips"></p>
 			
 			</div>
-			<div id="">
+			<div id="process" style="display: none;">
 				<div class="ok"></div>
 				<div class="tbox">
 					<div class="tiao"></div>
@@ -36,7 +36,7 @@
 			
 			<div id="loading" style="display: none;">
 				<div class="loader">
-					<div class="text">用户信息获取中 ...</div>
+					<div class="text">用户信息加载中 ...</div>
 					<div class="horizontal">
 					  <div class="circlesup">
 							<div class="circle"></div>
@@ -134,6 +134,7 @@
 				success: function(data){
 					// 后台返回的数据 如果数据库中没有此用户的信息
 					if (data.articleNum != 'yes'){
+						$('#process').show()
 						console.log('用户总文章数：' + data.articleNum);
 						user_articleNum = data.articleNum
 				// 数据库里没有此用户的文章数据信息；根据 user_homepage 调取先前的爬取文件 获取用户的文章并传入数据库
@@ -156,6 +157,7 @@
 						// 每间隔1秒钟查询 user_homepage 入库的文章数
 						stop = setInterval("run()",2000);
 					}else{
+						
 						// 提交表单 把用户转向至 '展示单个用户的爱好' 页面
 						$('#form_submit').submit();
 						// $.ajax({
@@ -212,17 +214,28 @@
 			if (i >= user_articleNum) {
 				process = Math.round((i / user_articleNum) *100);
 				add(process);
-				$(".ok").html("加载完成").fadeIn("slow");
+				$(".ok").html("加载完成, 正在生成用户画像").fadeIn("slow");
 				clearInterval(stop);
 						
 			};
 						
 			if (i < user_articleNum) {
-				process = Math.round((i / user_articleNum) *100);
+				process = ((i / user_articleNum) *100).toFixed(3);
 				console.log('当前进度：' + process + '%');
 				add(process);
 			}
-		}
+		};
+		
+		// 如果 Enter 键被按下 也触发 loading() 函数
+		$(function(){ 
+		  $(document).keydown(function(event){ 
+		    if(event.keyCode==13){ 
+		      loading();
+		    } 
+		  })
+		})
+		
+
 		
 	</script>
 </html>

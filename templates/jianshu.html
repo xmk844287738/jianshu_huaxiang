@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<!-- 简书用户 top100 常用词 -->
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>简书用户top100常用词</title>
+		<link rel="stylesheet" type="text/css" href="../static/css/bootstrap.min.css"/>
+		<link rel="stylesheet" type="text/css" href="../static/css/wordCloud.css"/>
+	</head>
+	<body>
+		<div class="left">
+			<a href="/user"><p style="font-size: 20px; ">看看我自己的常用词</p></a>
+		</div>
+		<div id="" align="center" >
+			<div id="" style="margin-top: 50px;">
+				<div class="input-group" style="width: 15%;">
+				  <input type="text" class="form-control" placeholder="请输入用户的人数..." id="user_num">
+				  <div class="sftg-yourinfo">
+				  	<div class="sftglong-input">
+				  		<a><input type="file" onclick="loadData()" /></a>
+				  	</div>
+				  	<div id="lee"></div>
+				  </div>		  
+				</div>			
+			</div>	
+		</div>
+		
+			
+		<div class="content">
+			<div id="" align="center">
+				<div class="main">
+					<div id="main" style="width:1500px;height:900px; top: -200px;"></div>
+					<!-- <div id="choose"></div> -->
+				</div>
+			</div>
+			
+		</div>	
+	</body>
+	<script src="../static/js/echarts.js"></script>
+	<script src="../static/js/echarts-wordcloud.min.js"></script>
+	<script src="../static/js/jquery-3.4.1.min.js"></script>
+	<script>
+		
+		var commWords = [];
+		var commWords_val = [];
+		var data = [];
+		
+		function loadData(){
+			// 取到id为 user_num 的值
+			var user_num = $('#user_num').val();
+			
+			if (user_num != ''){
+				
+				var user_num_dict = {
+					'user_num':user_num,
+				};
+				
+				console.log(user_num_dict);
+				
+				user_num_json = JSON.stringify(user_num_dict);
+				
+				$.ajax({
+					url: "/jianshu/show",
+					type: "POST",
+					async: true,
+					data: user_num_json,
+					// 返回数据类型
+					dataType: 'json',
+					success: function(data){
+						// console.log(data);
+						// 取出 userCommWords_td 里的所有键 (key) 
+						$.each(data, function(i, x){
+						       commWords.push(i);                        // i 为 key，x为value
+							   commWords_val.push(x);
+						})
+						
+					}
+				})
+			}
+			
+		}
+		
+		
+		$(function() {
+			function xmTanUploadImg(obj) {
+				var file = obj.files[0];
+				var reader = new FileReader();
+				reader.onload = function(e) {
+					var img = '<img src=' + e.target.result + '>';
+					srcword = e.target.result;
+					
+					img = '<div class="item" style="display: none">' + img + '<i class="iconfont icon-guanbi1"></i></div>';
+					$('#lee').html(img);
+				}
+				reader.readAsDataURL(file);
+			}
+			//上传文件
+			$('.sftg-yourinfo').on('change', '.sftglong-input a input', function(event) {
+				event.stopPropagation();
+				event.preventDefault();
+				var val = $(this).val();
+				var dataval = [];
+				val = val.split('\\')[2];
+				$(this).parent().parent().find('span').html(val);
+				$('#lee').css({
+					'height': '180px',
+					'margin-top': '36px'
+				});
+				xmTanUploadImg(this);
+				console.log('aaa');
+				// 延时
+				setTimeout(add, 500);
+			});
+			//绘制词云
+			function add() {
+				var myChart = echarts.init(document.getElementById('main'));
+				// var presents = ['圣诞树', '贺卡', '圣诞礼盒', '围巾', '袜子', '苹果', '手链', '巧克力', '玫瑰', '香水', '乐高', '芭比', '项链', '抱枕', '变形金刚',
+				// 	'摆件', '魔方', '文具', '棒棒糖', '蓝牙耳帽', '超级飞侠', '暖手宝', '夜灯', '堆袜', '耳钉', '公仔', '手机壳', '八音盒', '剃须刀', '打火机', '手表',
+				// 	'巴克球', '模型', '音响', '蒙奇奇', '保温杯', '公仔', '手机壳', '八音盒', '剃须刀', '打火机', '手表', '巴克球', '模型', '音响', '蒙奇奇', '保温杯',
+				// 	'圣诞树', '贺卡', '圣诞礼盒', '围巾', '袜子', '苹果', '手链', '巧克力', '玫瑰', '香水', '乐高', '芭比', '项链', '抱枕', '变形金刚', '摆件', '魔方',
+				// 	'文具', '棒棒糖', '蓝牙耳帽', '超级飞侠', '暖手宝', '夜灯', '堆袜', '耳钉', '公仔', '手机壳', '八音盒', '剃须刀', '打火机', '手表', '巴克球', '模型',
+				// 	'音响', '蒙奇奇', '保温杯', '公仔', '手机壳', '八音盒', '剃须刀', '打火机', '手表', '巴克球', '模型', '音响', '蒙奇奇', '保温杯'
+				// ]
+				var chooseurl = $('#lee').find('img').attr('src');
+				
+				for (var i = 0; i < commWords.length; ++i) {
+					data.push({
+						name: commWords[i],
+						value: commWords_val[i]
+					});
+				}
+				
+				// 扩充 presents 内容数量 10ba tch 
+				for (var j =0; j < 10; j++){
+					for (var i = 20; i < commWords.length - 10; i++) {
+						data.push({
+							name: commWords[i],
+							value: commWords_val[i]
+						});
+					}
+				}
+				
+				var maskImage = new Image();
+				maskImage.onload = function() {
+					myChart.setOption({
+						// 标签提示
+						tooltip: {
+							show: true
+						},
+						series: [{
+							type: 'wordCloud',
+							gridSize: 1,
+							sizeRange: [6, 30],
+							// 旋转范围
+							rotationRange: [0, 180],
+							// 旋转的步长
+							rotationStep: 10,
+												             // shape:'trapezoidal',
+							maskImage: maskImage,
+							textStyle: {
+								normal: {
+									color: function(v) {
+										if (v.value > 1200) {
+											return 'rgb(110, 206, 7)';
+										} else if (v.value > 1100) {
+											return 'rgb(7, 49, 206)';
+										} else if (v.value > 1000) {
+											return 'rgb(105, 7, 206)';
+										} else if (v.value > 700) {
+											return 'rgb(185, 45, 225)';
+										} else if (v.value > 500) {
+											return 'rgb(247, 65, 193)';
+										} else if (v.value > 400) {
+											return '#53DF00';
+										} else if (v.value > 300) {
+											return 'rgb(223, 31, 126)';
+										} else if (v.value > 270) {
+											return '#C4000F';
+										} else if (v.value > 230) {
+											return '#B40097';
+										} else if (v.value > 200) {
+											return '#EA0037	';
+										} else if (v.value > 150) {
+											return '#E40045';
+										} else if (v.value > 100) {
+											return '#FF3900';
+										} else if (v.value > 70) {
+											return 'rgb(229, 208, 66)';
+										} else if (v.value > 30) {
+											return 'rgb(189, 117, 82)';
+										} else {
+											return 'rgb(20, 186, 167)';
+										}
+									}
+									
+						
+								},
+							},
+							
+							width: '60%',
+							height: 600,
+							top: 40,
+							// data 为 字典对象
+							data: data
+						}]
+					});
+				};
+				
+				// 词云背景图片, 以此作图
+				maskImage.src = chooseurl;
+			}
+			
+			// 初始化 Echarts 设置
+			var myChart = echarts.init(document.getElementById('main'));
+			
+			// // 点击打开 标签详情
+			// myChart.on('click', function(params) {
+			// 	$('#choose').show();
+			// 	$('#choose').html(params.name);
+			// });
+			
+			// // 点击关闭 标签详情
+			// $('#choose').on('click', function() {
+			// 	$('#choose').hide();
+			// });
+			
+		});
+	</script>
+</html>

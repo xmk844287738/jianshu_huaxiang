@@ -3,18 +3,14 @@
 	<head>
 		<meta charset="utf-8">
 		<title>简书个体用户画像展示</title>
-		<script type="text/javascript" src="../static/js/echarts.js"></script>
-		<style type="text/css">
-			/* *{
-				margin: 0px;
-				padding: 0px;
-			}
-			#id2{
-				margin: 100px;
-			} */
-		</style>
+		<script src="../static/js/echarts.js" type="text/javascript" ></script>
+		<link rel="stylesheet" type="text/css" href="../static/css/huaxiang.css"/>
 	</head>
 	<body>
+		
+		<div id="" style="float: left;">
+			<a href="/crowd"><p style="font-size: 20px;">看看群体用户的爱好</p></a>
+		</div>
 
 		{% if hobby_label %}
 		<div align="center">
@@ -24,7 +20,7 @@
 
 		var option = {
 			title: {
-				text: '自定义雷达图'
+				text: '爱好雷达图'
 			},
 			legend: {
 				data: [{{ userInfo["nickname"]|tojson }}]
@@ -100,15 +96,48 @@
 		</div>
 		{% endif %}
 		
-		<div id="" style="margin-top: 100px;">
+		<!-- 用户常用词 -->
+		<div id="" style="margin-top: 50px;">
 			{% if userInfo %}
-				<div align="center" >
-					<div class="">
+						
+				<div align="center" id="huaxiang" >
+					<h3>常用词</h3>
+					<!-- 1.动态展示用户常用词 -->
+					<div id="tagbox">						
+						<!-- <a href="#" class="blue">美女</a> -->
+						
+					</div>
+					
+					<!-- 2.用户画像展示 -->
+					<div id="wordcould">
 						<img src="../static/img/{{ userInfo['gender'] }}.jpg" >
 					</div>
+					
 				</div>
 			{% endif %}
 		</div>
 		
 	</body>
+	<script src="../static/js/dynamic_wg.js" type="text/javascript"></script>
+	<script src="../static/js/jquery-3.4.1.min.js" type="text/javascript"></script>
+
+	<script type="text/javascript">
+		var color_arr = ['#FF6666','#FFB400','#64BD3D','#EE9201','#29AAE3',
+		        '#B74AE5','#7CE700','#00C90D', '#FF6666', '#009E8E',
+				'#9C02A7', '#E40045', '#CC0033', '#99CC00', '#CC0033',
+				'#FF6600', '#FF0033', '#00CC00', '#78E700', '#E91E63'];
+		
+		var x = 19; //上限值
+		var y = 0;	//下限值
+				
+		{% for k,v in userCommonWords.items() %}
+			var rand_index = parseInt(Math.random() * (x - y + 1) + y);
+			var temp_color = color_arr[rand_index];
+			// console.log(temp_color);
+			
+			$('#tagbox').append('<a href="#" style=color:' + temp_color + '>{{ k }}</a>');			
+		{% endfor %}
+		
+		
+	</script>
 </html>
