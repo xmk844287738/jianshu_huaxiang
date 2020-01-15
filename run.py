@@ -224,11 +224,11 @@ def everySec_queryDB():
 def user_hobby_show():
     # request.form.get('name') => from 表单提取
     homepage = request.form.get('homepage')
-    print(homepage)
 
     # homepage_json = request.get_data()
     # homepage_dict = json.loads(homepage_json)
     # homepage = homepage_dict['homepage']
+    print(homepage)
 
     # 使用正则验证用户输入的用户主页是否合法
     match_result = re.match(r'(https://)?(www.jianshu.com/u/)?(\w{6}|\w{12})$',
