@@ -1,0 +1,38 @@
+#huaxiang {
+	width: 90%;
+	margin-top: 0px;
+	margin-right: auto;
+	margin-bottom: 0px;
+	margin-left: auto;
+}
+
+#tagbox {
+	position: relative;
+	margin: 20px auto 0px;
+	width: 600px;
+	height: 550px;
+	background: #FFFFFF;
+	float: left;
+}
+
+#tagbox a {
+	position: absolute;
+	padding: 3px 6px;
+	font-family: Microsoft YaHei;
+	TOP: 0px;
+	font-weight: bold;
+	text-decoration: none;
+	left: 0px
+}
+
+#tagbox a:hover {
+	border: #eee 1px solid;
+	background: #000;
+}
+
+
+
+#wordcould {
+	float: right;
+	margin-right: 300px;
+}
