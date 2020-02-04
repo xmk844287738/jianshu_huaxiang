@@ -196,7 +196,7 @@ class user_wordCloud:
         ##具体的形状会适应你的图片的.
 
         # 获取 方正字迹-曾正国楷体.TTF文件的路径 (jianshu_huaxiang 文件夹下的方正字迹-曾正国楷体.TTF)
-        fontPath = os.path.abspath(self.projectPath + 'jianshu_huaxiang\\方正字迹-曾正国楷体.TTF')
+        fontPath = os.path.abspath(self.projectPath + 'jianshu_huaxiang\\书体坊安景臣钢笔行书.TTF')
 
         wc = WordCloud(font_path=fontPath, background_color="white", max_font_size=max_font_size,
                        min_font_size=min_font_size,
