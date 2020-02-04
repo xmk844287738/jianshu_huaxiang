@@ -14,7 +14,7 @@ class user_wordCloud:
     def __init__(self):
 
         curPath = os.path.abspath(os.path.dirname(__file__))
-        # 获取jianshu_flask，也就是项目的根路径
+        # 获取jianshu_flask，也就是项目的根路径  clone下载 后切记要把 项目名修改为 jianshu_flask
         projectPath = curPath[:curPath.find("jianshu_flask\\") + len("jianshu_flask\\")]
 
         self.projectPath = projectPath
