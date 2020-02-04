@@ -1,0 +1,3 @@
+jianshu_huaxiang项目整体流程；
+用到的主要python库: Collections jieba lxml pymongo pandas wordcloud Jinja2 matplotlib 
+用到的python框架：Flask
