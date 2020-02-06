@@ -1,3 +1,4 @@
 jianshu_huaxiang项目整体流程；
 用到的主要python库: Collections jieba lxml pymongo pandas wordcloud Jinja2 matplotlib 
 用到的python框架：Flask
+clone下载 后切记要把 项目名修改为 jianshu_flask
